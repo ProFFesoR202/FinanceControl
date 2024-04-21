@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<TabPane minHeight="540.0" minWidth="960.0" prefHeight="540.0" prefWidth="960.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.financecontrol.FinanceController">
+   <tabs>
+      <Tab text="Домашняя страница">
+         <content>
+            <BorderPane>
+               <top>
+                  <StackPane>
+                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Домашняя страница">
+                        <font>
+                           <Font name="Gabriola" size="61.0" />
+                        </font>
+                     </Text>
+                  </StackPane>
+               </top>
+            </BorderPane>
+         </content>
+      </Tab>
+      <Tab text="Доходы">
+         <content>
+            <BorderPane>
+               <top>
+                  <StackPane>
+                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Доходы">
+                        <font>
+                           <Font name="Gabriola" size="61.0" />
+                        </font>
+                     </Text>
+                  </StackPane>
+               </top>
+               <center>
+                  <VBox fx:id="incomesVBox" VBox.vgrow="ALWAYS" />
+               </center>
+            </BorderPane>
+         </content>
+      </Tab>
+      <Tab text="Расходы">
+         <content>
+            <BorderPane>
+               <top>
+                  <StackPane>
+                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Расходы">
+                        <font>
+                           <Font name="Gabriola" size="61.0" />
+                        </font>
+                     </Text>
+                  </StackPane>
+               </top>
+               <center>
+                  <VBox fx:id="expensesVBox" VBox.vgrow="ALWAYS" />
+               </center>
+            </BorderPane>
+         </content>
+      </Tab>
+      <Tab text="Финансовые цели">
+         <content>
+            <BorderPane>
+               <top>
+                  <StackPane>
+                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Финансовые цели">
+                        <font>
+                           <Font name="Gabriola" size="61.0" />
+                        </font>
+                     </Text>
+                  </StackPane>
+               </top>
+            </BorderPane>
+         </content>
+      </Tab>
+   </tabs>
+</TabPane>
