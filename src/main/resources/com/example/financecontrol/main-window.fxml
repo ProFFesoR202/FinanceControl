@@ -73,6 +73,9 @@
                      </Text>
                   </StackPane>
                </top>
+               <center>
+                  <VBox fx:id="goalsVBox" VBox.vgrow="ALWAYS" />
+               </center>
             </BorderPane>
          </content>
       </Tab>

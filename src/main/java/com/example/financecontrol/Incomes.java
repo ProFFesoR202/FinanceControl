@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 public class Incomes {
+    private static int count = 1;
+    private int id;
     private String category;
     private Date date;
     private String comment;
@@ -14,6 +16,11 @@ public class Incomes {
         this.date = date;
         this.comment = comment;
         this.amount = amount;
+        this.id = count++;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getCategory() {
