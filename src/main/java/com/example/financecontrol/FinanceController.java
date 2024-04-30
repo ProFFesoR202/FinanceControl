@@ -1,23 +1,30 @@
 package com.example.financecontrol;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.DoubleStringConverter;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Currency;
-import java.util.Date;
+import java.util.List;
 
 public class FinanceController {
+    // TODO: Настроить домашнюю страницу
+
+    static ObservableList<Incomes> incomes;
+    static ObservableList<Expenses> expenses;
+    static ObservableList<FinanceGoal> goals;
 
     @FXML
     private VBox incomesVBox;
@@ -29,7 +36,7 @@ public class FinanceController {
     private VBox goalsVBox;
 
     @FXML
-    public void initialize() {
+    public void initialize() throws IOException, ClassNotFoundException {
         TableView<Incomes> incomesTable = createIncomesTableView();
 
         Button addIncomesButton = new Button("Создать");
@@ -70,13 +77,14 @@ public class FinanceController {
         goalsVBox.setPadding(new Insets(0, 5, 0, 5));
     }
 
-    private TableView<Incomes> createIncomesTableView() {
+    private TableView<Incomes> createIncomesTableView() throws IOException, ClassNotFoundException  {
         TableView<Incomes> table = new TableView<>();
-        ObservableList<Incomes> incomes = FXCollections.observableArrayList(
-                new Incomes("Зарплата", new Date(), "Аванс", 40000.0),
-                new Incomes("Зарплата", new Date(), "Зарплата", 50000.0),
-                new Incomes("Другое", new Date(), "Mr. Kondratev", 15000.0)
-        );
+        try {
+            List<Incomes> inc = (List<Incomes>) Data.loadDataFromFile("C:\\Users\\igory\\AppData\\Local\\FinanceControl\\incomes.txt");
+            incomes = FXCollections.observableArrayList(inc);
+        } catch (Exception e) {
+            incomes = FXCollections.observableArrayList();
+        }
 
         TableColumn<Incomes, Number> id = new TableColumn<>("ID");
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -105,14 +113,14 @@ public class FinanceController {
         return table;
     }
 
-    private TableView<Expenses> createExpensesTableView() {
+    private TableView<Expenses> createExpensesTableView() throws IOException, ClassNotFoundException  {
         TableView<Expenses> table = new TableView<>();
-        ObservableList<Expenses> expenses = FXCollections.observableArrayList(
-                new Expenses("Кредит", new Date(), "Призыва нет", 7000.0),
-                new Expenses("Кредит", new Date(), "SkillBox", 4500.0),
-                new Expenses("Кредит", new Date(), "Призыва нет", 5500.0),
-                new Expenses("Подписки", new Date(), "Яндекс, Faceit, Warmup Servers", 2000.0)
-        );
+        try {
+            List<Expenses> loadedExpenses = (List<Expenses>) Data.loadDataFromFile("C:\\Users\\igory\\AppData\\Local\\FinanceControl\\expenses.txt");
+            expenses = FXCollections.observableArrayList(loadedExpenses);
+        } catch (Exception e) {
+            expenses = FXCollections.observableArrayList();
+        }
 
         TableColumn<Expenses, Number> id = new TableColumn<>("ID");
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -141,12 +149,15 @@ public class FinanceController {
         return table;
     }
 
-    private TableView<FinanceGoal> createGoalsTableView() {
+    private TableView<FinanceGoal> createGoalsTableView() throws IOException, ClassNotFoundException {
         TableView<FinanceGoal> table = new TableView<>();
-        ObservableList<FinanceGoal> goals = FXCollections.observableArrayList(
-                new FinanceGoal(new SimpleStringProperty("Макбук"), new SimpleDoubleProperty(120000.0), LocalDate.of(2024, 6, 1)),
-                new FinanceGoal(new SimpleStringProperty("Обновление компьютера"), new SimpleDoubleProperty(100000.0), LocalDate.of(2024, 7, 1))
-        );
+        try {
+            List<FinanceGoal> loadedGoals = (List<FinanceGoal>) Data.loadDataFromFile("C:\\Users\\igory\\AppData\\Local\\FinanceControl\\goals.txt");
+            goals = FXCollections.observableArrayList(loadedGoals);
+            new FinanceGoal("Новая цель", 0, LocalDate.now()).setCount(goals.stream().max(Comparator.comparingInt(FinanceGoal::getId)).get().getId() + 1);
+        } catch (Exception e) {
+            goals = FXCollections.observableArrayList();
+        }
         table.setEditable(true);
 
         TableColumn<FinanceGoal, Number> id = new TableColumn<>("ID");
@@ -181,7 +192,7 @@ public class FinanceController {
 
         TableColumn<FinanceGoal, String> status = new TableColumn<>("Статус");
         status.setCellValueFactory(new PropertyValueFactory<>("status"));
-        status.setCellFactory(TextFieldTableCell.forTableColumn());
+        status.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList("Открытая", "Закрытая", "Просроченная")));
         status.setOnEditCommit(
                 (TableColumn.CellEditEvent<FinanceGoal, String> t) -> {
                     (t.getTableView().getItems().get(t.getTablePosition().getRow())).setStatus(t.getNewValue());
@@ -194,6 +205,15 @@ public class FinanceController {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         return table;
+    }
+
+    public static void saveData() throws IOException {
+        List<Incomes> inc = new ArrayList<>(incomes);
+        List<Expenses> exp = new ArrayList<>(expenses);
+        List<FinanceGoal> goal = new ArrayList<>(goals);
+        Data.saveDataToFile(inc, "C:\\Users\\igory\\AppData\\Local\\FinanceControl\\incomes.txt");
+        Data.saveDataToFile(exp, "C:\\Users\\igory\\AppData\\Local\\FinanceControl\\expenses.txt");
+        Data.saveDataToFile(goal, "C:\\Users\\igory\\AppData\\Local\\FinanceControl\\goals.txt");
     }
 
 }

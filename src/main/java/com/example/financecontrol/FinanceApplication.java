@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class FinanceApplication extends Application {
+    //TODO: Навалить стиля
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(FinanceApplication.class.getResource("main-window.fxml"));
@@ -17,6 +18,15 @@ public class FinanceApplication extends Application {
         stage.setTitle("Контроль финансов");
         stage.setScene(scene);
         stage.show();
+
+        stage.setOnCloseRequest(e -> {
+            try {
+                FinanceController.saveData();
+            } catch (IOException ex) {
+                e.consume();
+                System.out.println(ex.getMessage());
+            }
+        });
     }
 
     public static void main(String[] args) {

@@ -2,25 +2,20 @@ package com.example.financecontrol;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.Locale;
 
 public class ButtonsController {
 
-    //TODO Сделать обязательные поля через проверку на пустоту, обводить поля красным цветом
     public static void showAddIncomeDialog(ObservableList<Incomes> incomes) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle("Создать доход");
@@ -32,22 +27,32 @@ public class ButtonsController {
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(10));
 
-        TextField categoryField = new TextField();
+        ComboBox<String> categoryField = new ComboBox<>(FXCollections.observableArrayList(
+            "Зарплата",
+                "Аванс",
+                "Займ",
+                "Инвестиции",
+                "Другое"
+        ));
         TextField commentField = new TextField();
         TextField amountField = new TextField();
 
         Button doneButton = new Button("Готово");
         doneButton.setOnAction(e -> {
-            try{
-                String category = categoryField.getText();
-                Date date = new Date();
-                String comment = commentField.getText();
-                double amount = Double.parseDouble(amountField.getText());
+            if(Validates.validateInput(categoryField, commentField, amountField)) {
+                try{
+                    String category = categoryField.getValue();
+                    Date date = new Date();
+                    String comment = commentField.getText();
+                    double amount = Double.parseDouble(amountField.getText());
 
-                incomes.add(new Incomes(category, date, comment, amount));
-                dialogStage.close();
-            } catch (NumberFormatException ex) {
-                amountField.setText("Введите корректное число");
+                    incomes.add(new Incomes(category, date, comment, amount));
+                    dialogStage.close();
+                } catch (NumberFormatException ex) {
+                    amountField.setText("Введите корректное число");
+                }
+            }else{
+                showAlertWithError("Все поля должны быть заполнены");
             }
         });
 
@@ -81,15 +86,19 @@ public class ButtonsController {
 
         Button doneButton = new Button("Готово");
         doneButton.setOnAction(e -> {
-            try{
-                int index = Integer.parseInt(id.getText());
-                if(index < 1) {
-                    throw new Exception("Индекс вне диапазона");
+            if(Validates.validateInput(id)) {
+                try{
+                    int index = Integer.parseInt(id.getText());
+                    if(index < 1) {
+                        throw new Exception("Индекс вне диапазона");
+                    }
+                    incomes.stream().filter(income -> income.getId() == index).findAny().ifPresent(incomes::remove);
+                    dialogStage.close();
+                } catch (Exception ex) {
+                    id.setText("Введите корректное число");
                 }
-                incomes.stream().filter(income -> income.getId() == index).findAny().ifPresent(incomes::remove);
-                dialogStage.close();
-            } catch (Exception ex) {
-                id.setText("Введите корректное число");
+            }else{
+                showAlertWithError("Заполните поле id");
             }
         });
 
@@ -113,22 +122,34 @@ public class ButtonsController {
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(10));
 
-        TextField categoryField = new TextField();
+        ComboBox<String> categoryField = new ComboBox<String>(FXCollections.observableArrayList(
+            "Продукты",
+                "Еда",
+                "Транспорт",
+                "Займы",
+                "Кредиты",
+                "Подписки",
+                "Другое"
+        ));
         TextField commentField = new TextField();
         TextField amountField = new TextField();
 
         Button doneButton = new Button("Готово");
         doneButton.setOnAction(e -> {
-            try{
-                String category = categoryField.getText();
-                Date date = new Date();
-                String comment = commentField.getText();
-                double amount = Double.parseDouble(amountField.getText());
+            if(Validates.validateInput(categoryField, commentField, amountField)) {
+                try{
+                    String category = categoryField.getValue();
+                    Date date = new Date();
+                    String comment = commentField.getText();
+                    double amount = Double.parseDouble(amountField.getText());
 
-                expenses.add(new Expenses(category, date, comment, amount));
-                dialogStage.close();
-            } catch (NumberFormatException ex) {
-                amountField.setText("Введите корректное число");
+                    expenses.add(new Expenses(category, date, comment, amount));
+                    dialogStage.close();
+                } catch (NumberFormatException ex) {
+                    amountField.setText("Введите корректное число");
+                }
+            }else{
+                showAlertWithError("Все поля должны быть заполнены");
             }
         });
 
@@ -162,15 +183,19 @@ public class ButtonsController {
 
         Button doneButton = new Button("Готово");
         doneButton.setOnAction(e -> {
-            try{
-                int index = Integer.parseInt(id.getText());
-                if(index < 1) {
-                    throw new Exception("Индекс вне диапазона");
+            if(Validates.validateInput(id)) {
+                try{
+                    int index = Integer.parseInt(id.getText());
+                    if(index < 1) {
+                        throw new Exception("Индекс вне диапазона");
+                    }
+                    expenses.stream().filter(income -> income.getId() == index).findAny().ifPresent(expenses::remove);
+                    dialogStage.close();
+                } catch (Exception ex) {
+                    id.setText("Введите корректное число");
                 }
-                expenses.stream().filter(income -> income.getId() == index).findAny().ifPresent(expenses::remove);
-                dialogStage.close();
-            } catch (Exception ex) {
-                id.setText("Введите корректное число");
+            }else{
+                showAlertWithError("Заполните поле id");
             }
         });
 
@@ -200,15 +225,19 @@ public class ButtonsController {
 
         Button doneButton = new Button("Готово");
         doneButton.setOnAction(e -> {
-            try {
-                LocalDate date = dateField.getValue();
-                SimpleStringProperty name = new SimpleStringProperty(nameField.getText());
-                SimpleDoubleProperty amount = new SimpleDoubleProperty(Double.parseDouble(amountField.getText()));
+            if(Validates.validateInput(dateField, nameField, amountField)) {
+                try {
+                    LocalDate date = dateField.getValue();
+                    String name = nameField.getText();
+                    Double amount = Double.parseDouble(amountField.getText());
 
-                goals.add(new FinanceGoal(name, amount, date));
-                dialogStage.close();
-            } catch (NumberFormatException ex) {
-                amountField.setText("Введите корректное число");
+                    goals.add(new FinanceGoal(name, amount, date));
+                    dialogStage.close();
+                } catch (NumberFormatException ex) {
+                    amountField.setText("Введите корректное число");
+                }
+            }else{
+                showAlertWithError("Все поля должны быть заполнены");
             }
         });
 
@@ -242,15 +271,19 @@ public class ButtonsController {
 
         Button doneButton = new Button("Готово");
         doneButton.setOnAction(e -> {
-            try{
-                int index = Integer.parseInt(id.getText());
-                if(index < 1) {
-                    throw new Exception("Индекс вне диапазона");
+            if(Validates.validateInput(id)) {
+                try{
+                    int index = Integer.parseInt(id.getText());
+                    if(index < 1) {
+                        throw new Exception("Индекс вне диапазона");
+                    }
+                    goals.stream().filter(income -> income.getId() == index).findAny().ifPresent(goals::remove);
+                    dialogStage.close();
+                } catch (Exception ex) {
+                    id.setText("Введите корректное число");
                 }
-                goals.stream().filter(income -> income.getId() == index).findAny().ifPresent(goals::remove);
-                dialogStage.close();
-            } catch (Exception ex) {
-                id.setText("Введите корректное число");
+            }else{
+                showAlertWithError("Заполните поле id");
             }
         });
 
@@ -261,5 +294,11 @@ public class ButtonsController {
         Scene scene = new Scene(vbox);
         dialogStage.setScene(scene);
         dialogStage.showAndWait();
+    }
+
+    private static void showAlertWithError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message);
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 }

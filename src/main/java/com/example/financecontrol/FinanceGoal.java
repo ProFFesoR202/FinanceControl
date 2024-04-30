@@ -1,27 +1,25 @@
 package com.example.financecontrol;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-
-import java.text.DateFormat;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 
-public class FinanceGoal {
+public class FinanceGoal implements Serializable {
+    private static final long serialVersionUID = 1L;
     private static int count = 1;
     private int id;
-    private SimpleStringProperty name;
-    private SimpleDoubleProperty amount;
-    private ObjectProperty<LocalDate> deadline;
-    private SimpleStringProperty status;
+    private String name;
+    private double amount;
+    private LocalDate deadline;
+    private String status;
 
-    public FinanceGoal(SimpleStringProperty name, SimpleDoubleProperty amount, LocalDate deadline) {
+    public FinanceGoal(String name, double amount, LocalDate deadline) {
         this.name = name;
         this.amount = amount;
-        this.deadline = new SimpleObjectProperty<>(deadline);
-        this.status = new SimpleStringProperty("Открытая");
+        this.deadline = deadline;
+        this.status = "Открытая";
         this.id = count++;
     }
 
@@ -29,47 +27,54 @@ public class FinanceGoal {
         return id;
     }
 
-    public String getName() {
-        return name.get();
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public SimpleStringProperty nameProperty() {
+    public String getName() {
         return name;
     }
 
     public void setName(String name) {
-        this.name.set(name);
+        this.name = name;
     }
 
     public double getAmount() {
-        return amount.get();
-    }
-
-    public SimpleDoubleProperty amountProperty() {
         return amount;
     }
 
     public void setAmount(double amount) {
-        this.amount.set(amount);
+        this.amount = amount;
     }
 
     public LocalDate getDeadline() {
-        return deadline.get();
+        return deadline;
     }
 
     public void setDeadline(LocalDate deadline) {
-        this.deadline.set(deadline);
+        this.deadline = deadline;
     }
 
     public String getStatus() {
-        return status.get();
-    }
-
-    public SimpleStringProperty statusProperty() {
         return status;
     }
 
     public void setStatus(String status) {
-        this.status.set(status);
+        this.status = status;
+    }
+
+    public void setCount(int count) {
+        FinanceGoal.count = count;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject(); // Сериализует стандартные поля
+        out.writeInt(id);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject(); // Десериализует стандартные поля
+        id = in.readInt();
+        FinanceGoal.count = Math.max(FinanceGoal.count, id + 1);
     }
 }

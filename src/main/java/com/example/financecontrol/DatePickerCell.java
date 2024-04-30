@@ -1,11 +1,8 @@
 package com.example.financecontrol;
 
 import javafx.scene.control.TableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.DatePicker;
-import javafx.util.Callback;
 import javafx.util.StringConverter;
-import javafx.scene.control.TableColumn;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
