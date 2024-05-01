@@ -1,28 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<TabPane minHeight="540.0" minWidth="960.0" prefHeight="540.0" prefWidth="960.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.financecontrol.FinanceController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.financecontrol.FinanceController">
    <tabs>
       <Tab text="Домашняя страница">
          <content>
-            <BorderPane>
-               <top>
-                  <StackPane>
-                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Домашняя страница">
-                        <font>
-                           <Font name="Gabriola" size="61.0" />
-                        </font>
-                     </Text>
-                  </StackPane>
-               </top>
-            </BorderPane>
+            <SplitPane dividerPositions="0.5, 0.5" prefHeight="160.0" prefWidth="200.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                     <children>
+                        <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="372.0" prefWidth="300.0" style="-fx-min-width: 100%;">
+                          <items>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                 <children>
+                                    <Label layoutX="118.0" layoutY="14.0" text="Остаток ДС" />
+                                    <Rectangle fx:id="RemainMoney" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="50.0" layoutX="49.0" layoutY="66.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+                                 </children>
+                              </AnchorPane>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                 <children>
+                                    <Label layoutX="74.0" layoutY="14.0" text="Расходы в текущем месяце" />
+                                    <Rectangle fx:id="ExpensesCurrentMonth" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="50.0" layoutX="49.0" layoutY="66.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+                                 </children>
+                              </AnchorPane>
+                          </items>
+                        </SplitPane>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+                  <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="372.0" prefWidth="300.0" style="-fx-min-width: 100%;">
+                     <items>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                           <children>
+                              <ProgressBar fx:id="GoalProgressBar" layoutX="46.0" layoutY="91.0" prefWidth="200.0" progress="0.0" />
+                              <Label fx:id="ProgressBarLabel" layoutX="46.0" layoutY="74.0" prefHeight="17.0" prefWidth="34.0" text="Label" />
+                              <Label layoutX="99.0" layoutY="14.0" text="Ближайшая цель" />
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                           <children>
+                              <Label layoutX="69.0" layoutY="14.0" text="Расходы за прошлый месяц" />
+                              <Rectangle fx:id="ExpensesLastMonth" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="50.0" layoutX="46.0" layoutY="66.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+                           </children>
+                        </AnchorPane>
+                     </items>
+                  </SplitPane>
+              </items>
+            </SplitPane>
          </content>
       </Tab>
       <Tab text="Доходы">

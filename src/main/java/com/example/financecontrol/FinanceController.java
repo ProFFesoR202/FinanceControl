@@ -10,8 +10,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.util.converter.DoubleStringConverter;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,6 +29,21 @@ public class FinanceController {
     static ObservableList<FinanceGoal> goals;
 
     @FXML
+    private Rectangle RemainMoney;
+
+    @FXML
+    private Rectangle ExpensesCurrentMonth;
+
+    @FXML
+    private Rectangle ExpensesLastMonth;
+
+    @FXML
+    private ProgressBar GoalProgressBar;
+
+    @FXML
+    private Label ProgressBarLabel;
+
+    @FXML
     private VBox incomesVBox;
 
     @FXML
@@ -37,6 +54,12 @@ public class FinanceController {
 
     @FXML
     public void initialize() throws IOException, ClassNotFoundException {
+
+        File folder = new File("C:\\FinanceControl");
+        if(!folder.exists()) {
+            folder.mkdirs();
+        }
+
         TableView<Incomes> incomesTable = createIncomesTableView();
 
         Button addIncomesButton = new Button("Создать");
@@ -80,7 +103,7 @@ public class FinanceController {
     private TableView<Incomes> createIncomesTableView() throws IOException, ClassNotFoundException  {
         TableView<Incomes> table = new TableView<>();
         try {
-            List<Incomes> inc = (List<Incomes>) Data.loadDataFromFile("C:\\Users\\igory\\AppData\\Local\\FinanceControl\\incomes.txt");
+            List<Incomes> inc = (List<Incomes>) Data.loadDataFromFile("C:\\FinanceControl\\incomes.txt");
             incomes = FXCollections.observableArrayList(inc);
         } catch (Exception e) {
             incomes = FXCollections.observableArrayList();
@@ -116,7 +139,7 @@ public class FinanceController {
     private TableView<Expenses> createExpensesTableView() throws IOException, ClassNotFoundException  {
         TableView<Expenses> table = new TableView<>();
         try {
-            List<Expenses> loadedExpenses = (List<Expenses>) Data.loadDataFromFile("C:\\Users\\igory\\AppData\\Local\\FinanceControl\\expenses.txt");
+            List<Expenses> loadedExpenses = (List<Expenses>) Data.loadDataFromFile("C:\\FinanceControl\\expenses.txt");
             expenses = FXCollections.observableArrayList(loadedExpenses);
         } catch (Exception e) {
             expenses = FXCollections.observableArrayList();
@@ -152,7 +175,7 @@ public class FinanceController {
     private TableView<FinanceGoal> createGoalsTableView() throws IOException, ClassNotFoundException {
         TableView<FinanceGoal> table = new TableView<>();
         try {
-            List<FinanceGoal> loadedGoals = (List<FinanceGoal>) Data.loadDataFromFile("C:\\Users\\igory\\AppData\\Local\\FinanceControl\\goals.txt");
+            List<FinanceGoal> loadedGoals = (List<FinanceGoal>) Data.loadDataFromFile("C:\\FinanceControl\\goals.txt");
             goals = FXCollections.observableArrayList(loadedGoals);
             new FinanceGoal("Новая цель", 0, LocalDate.now()).setCount(goals.stream().max(Comparator.comparingInt(FinanceGoal::getId)).get().getId() + 1);
         } catch (Exception e) {
@@ -211,9 +234,9 @@ public class FinanceController {
         List<Incomes> inc = new ArrayList<>(incomes);
         List<Expenses> exp = new ArrayList<>(expenses);
         List<FinanceGoal> goal = new ArrayList<>(goals);
-        Data.saveDataToFile(inc, "C:\\Users\\igory\\AppData\\Local\\FinanceControl\\incomes.txt");
-        Data.saveDataToFile(exp, "C:\\Users\\igory\\AppData\\Local\\FinanceControl\\expenses.txt");
-        Data.saveDataToFile(goal, "C:\\Users\\igory\\AppData\\Local\\FinanceControl\\goals.txt");
+        Data.saveDataToFile(inc, "C:\\FinanceControl\\incomes.txt");
+        Data.saveDataToFile(exp, "C:\\FinanceControl\\expenses.txt");
+        Data.saveDataToFile(goal, "C:\\FinanceControl\\goals.txt");
     }
 
 }
