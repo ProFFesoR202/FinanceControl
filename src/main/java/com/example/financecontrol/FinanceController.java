@@ -1,9 +1,12 @@
 package com.example.financecontrol;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -22,26 +25,34 @@ import java.util.Currency;
 import java.util.List;
 
 public class FinanceController {
-    // TODO: Настроить домашнюю страницу
 
     static ObservableList<Incomes> incomes;
     static ObservableList<Expenses> expenses;
     static ObservableList<FinanceGoal> goals;
 
     @FXML
-    private Rectangle RemainMoney;
+    private Label remainLabel;
 
     @FXML
-    private Rectangle ExpensesCurrentMonth;
+    private Label remainMoney;
 
     @FXML
-    private Rectangle ExpensesLastMonth;
+    private Label currentExpensesLabel;
 
     @FXML
-    private ProgressBar GoalProgressBar;
+    private Label lastExpensesLabel;
 
     @FXML
-    private Label ProgressBarLabel;
+    private Label expensesCurrentMonth;
+
+    @FXML
+    private Label expensesLastMonth;
+
+    @FXML
+    private ProgressBar goalProgressBar;
+
+    @FXML
+    private Label progressBarLabel;
 
     @FXML
     private VBox incomesVBox;
@@ -56,48 +67,132 @@ public class FinanceController {
     public void initialize() throws IOException, ClassNotFoundException {
 
         File folder = new File("C:\\FinanceControl");
-        if(!folder.exists()) {
+        if (!folder.exists()) {
             folder.mkdirs();
         }
 
         TableView<Incomes> incomesTable = createIncomesTableView();
+        TableView<Expenses> expensesTable = createExpensesTableView();
+        TableView<FinanceGoal> goalsTable = createGoalsTableView();
 
+        setupButtons(incomesTable, expensesTable, goalsTable);
+
+        setupListeners();
+
+        updateAllDisplays();
+
+        setupDynamicFontSize();
+        setupProgressBarStyles();
+    }
+
+    private void setupDynamicFontSize() {
+        StyleSettings.bindLabelFontSize(remainLabel);
+        StyleSettings.bindLabelFontSize(currentExpensesLabel);
+        StyleSettings.bindLabelFontSize(lastExpensesLabel);
+        StyleSettings.bindLabelFontSize(progressBarLabel);
+
+        StyleSettings.bindCurrencyFontSize(remainMoney);
+        StyleSettings.bindCurrencyFontSize(expensesCurrentMonth);
+        StyleSettings.bindCurrencyFontSize(expensesLastMonth);
+    }
+
+    private void setupProgressBarStyles() {
+        Scene scene = goalProgressBar.getScene();
+        if (scene == null) {
+            goalProgressBar.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    StyleSettings.bindProgressBarSize(newScene, goalProgressBar);
+                    StyleSettings.styleProgressBar(goalProgressBar);
+                }
+            });
+        } else {
+            StyleSettings.bindProgressBarSize(scene, goalProgressBar);
+            StyleSettings.styleProgressBar(goalProgressBar);
+        }
+    }
+
+    //Настройка кнопок
+    private void setupButtons(TableView<Incomes> incomesTable, TableView<Expenses> expensesTable, TableView<FinanceGoal> goalsTable) {
         Button addIncomesButton = new Button("Создать");
         addIncomesButton.setOnAction(e -> ButtonsController.showAddIncomeDialog(incomesTable.getItems()));
         Button removeIncomesButton = new Button("Удалить");
         removeIncomesButton.setOnAction(e -> ButtonsController.showRemoveIncomeDialog(incomesTable.getItems()));
-        HBox incomesHBox = new HBox(5);
-        incomesHBox.setStyle("-fx-alignment: TOP-RIGHT; -fx-padding: 0 0 5 0;");
-        incomesHBox.getChildren().addAll(addIncomesButton, removeIncomesButton);
 
+        HBox incomesHBox = new HBox(5, addIncomesButton, removeIncomesButton);
+        incomesHBox.setStyle("-fx-alignment: TOP-RIGHT; -fx-padding: 0 0 5 0;");
         incomesVBox.getChildren().addAll(incomesHBox, incomesTable);
         incomesVBox.setPadding(new Insets(0, 5, 0, 5));
-
-        TableView<Expenses> expensesTable = createExpensesTableView();
 
         Button addExpensesButton = new Button("Создать");
         addExpensesButton.setOnAction(e -> ButtonsController.showAddExpenseDialog(expensesTable.getItems()));
         Button removeExpensesButton = new Button("Удалить");
         removeExpensesButton.setOnAction(e -> ButtonsController.showRemoveExpenseDialog(expensesTable.getItems()));
-        HBox expensesHBox = new HBox(5);
-        expensesHBox.setStyle("-fx-alignment: TOP-RIGHT; -fx-padding: 0 0 5 0;");
-        expensesHBox.getChildren().addAll(addExpensesButton, removeExpensesButton);
 
+        HBox expensesHBox = new HBox(5, addExpensesButton, removeExpensesButton);
+        expensesHBox.setStyle("-fx-alignment: TOP-RIGHT; -fx-padding: 0 0 5 0;");
         expensesVBox.getChildren().addAll(expensesHBox, expensesTable);
         expensesVBox.setPadding(new Insets(0, 5, 0, 5));
-
-        TableView<FinanceGoal> goalsTable = createGoalsTableView();
 
         Button addGoalsButton = new Button("Создать");
         addGoalsButton.setOnAction(e -> ButtonsController.showAddGoalDialog(goalsTable.getItems()));
         Button removeGoalsButton = new Button("Удалить");
         removeGoalsButton.setOnAction(e -> ButtonsController.showRemoveGoalDialog(goalsTable.getItems()));
-        HBox goalsHBox = new HBox(5);
-        goalsHBox.setStyle("-fx-alignment: TOP-RIGHT; -fx-padding: 0 0 5 0;");
-        goalsHBox.getChildren().addAll(addGoalsButton, removeGoalsButton);
 
+        HBox goalsHBox = new HBox(5, addGoalsButton, removeGoalsButton);
+        goalsHBox.setStyle("-fx-alignment: TOP-RIGHT; -fx-padding: 0 0 5 0;");
         goalsVBox.getChildren().addAll(goalsHBox, goalsTable);
         goalsVBox.setPadding(new Insets(0, 5, 0, 5));
+    }
+
+    //Отслеживание изменений в коллекциях
+    private void setupListeners() {
+        incomes.addListener((ListChangeListener.Change<? extends Incomes> change) -> {
+            while (change.next()) {
+                updateIncomesInfo();
+            }
+        });
+
+        expenses.addListener((ListChangeListener.Change<? extends Expenses> change) -> {
+            while (change.next()) {
+                updateExpensesInfo();
+            }
+        });
+
+        goals.addListener((ListChangeListener.Change<? extends FinanceGoal> change) -> {
+            while (change.next()) {
+                updateGoalsInfo();
+            }
+        });
+    }
+
+    private void updateAllDisplays() {
+        updateIncomesInfo();
+        updateExpensesInfo();
+        updateGoalsInfo();
+    }
+    private void updateExpensesInfo() {
+        double currentMonthExpenses = getCurrentMonthExpenses();
+        double lastMonthExpenses = getLastMonthExpenses();
+        expensesCurrentMonth.setText(String.format("%.2f", currentMonthExpenses));
+        expensesLastMonth.setText(String.format("%.2f", lastMonthExpenses));
+        updateIncomesInfo();
+    }
+
+    private void updateIncomesInfo() {
+        double balance = getBalance();
+        remainMoney.setText(String.format("%.2f", balance));
+        updateGoalsInfo();
+    }
+
+    private void updateGoalsInfo() {
+        FinanceGoal nearestGoal = getNearestGoal();
+        if (nearestGoal != null) {
+            goalProgressBar.setProgress(getBalance() / nearestGoal.getAmount());
+            progressBarLabel.setText(nearestGoal.getName());
+        } else {
+            goalProgressBar.setProgress(0);
+            progressBarLabel.setText("Нет активных целей");
+        }
     }
 
     private TableView<Incomes> createIncomesTableView() throws IOException, ClassNotFoundException  {
@@ -237,6 +332,41 @@ public class FinanceController {
         Data.saveDataToFile(inc, "C:\\FinanceControl\\incomes.txt");
         Data.saveDataToFile(exp, "C:\\FinanceControl\\expenses.txt");
         Data.saveDataToFile(goal, "C:\\FinanceControl\\goals.txt");
+    }
+
+    private static double getLastMonthExpenses() {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfLastMonth = now.minusMonths(1).withDayOfMonth(1);
+        LocalDate endOfLastMonth = now.withDayOfMonth(1).minusDays(1);
+
+        // Фильтрация и суммирование расходов за прошлый месяц
+        return expenses.stream()
+                .filter(expense -> !expense.getOriginalDate().isBefore(startOfLastMonth) && !expense.getOriginalDate().isAfter(endOfLastMonth))
+                .mapToDouble(Expenses::getAmount)
+                .sum();
+    }
+
+    private static double getCurrentMonthExpenses() {
+        return expenses.stream()
+                .filter(expense -> expense.getOriginalDate().getMonthValue() == LocalDate.now().getMonthValue())
+                .mapToDouble(Expenses::getAmount)
+                .sum();
+    }
+
+    private static double getBalance() {
+        return incomes.stream()
+                .mapToDouble(Incomes::getAmount)
+                .sum() -
+                expenses.stream()
+                        .mapToDouble(Expenses::getAmount)
+                        .sum();
+    }
+
+    private static FinanceGoal getNearestGoal() {
+        return goals.stream()
+                .filter(goal -> goal.getDeadline().isAfter(LocalDate.now()) && goal.getStatus().equalsIgnoreCase("Открытая"))
+                .findFirst()
+                .get();
     }
 
 }

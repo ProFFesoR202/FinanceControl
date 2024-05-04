@@ -5,7 +5,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
 public class Expenses implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -33,7 +37,13 @@ public class Expenses implements Serializable {
     }
 
     public String getDate() {
-        return DateFormat.getDateInstance().format(date);
+        DateFormat formatter = new SimpleDateFormat("dd MMM yyyy", Locale.forLanguageTag("ru"));
+        return formatter.format(date);
+    }
+
+    public LocalDate getOriginalDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("ru"));
+        return LocalDate.parse(getDate(), formatter);
     }
 
     public String getComment() {
